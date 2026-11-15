@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="id"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Misi Antariksa: Video Interaktif</title>
+<style>
+:root{color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html,body{margin:0;background:#070b1c;color:#eef;font-family:system-ui,-apple-system,sans-serif}
+.w{max-width:960px;margin:0 auto;padding:8px}
+#st{position:relative;aspect-ratio:16/9;background:#0a1233;border-radius:12px;overflow:hidden}
+svg{width:100%;height:100%;display:block}
+.pz *{animation-play-state:paused!important}
+#cap{position:absolute;left:0;right:0;bottom:0;padding:8px 12px;background:rgba(0,0,20,.7);font-size:clamp(11px,2.4vw,18px);text-align:center;min-height:1.4em}
+#ov{position:absolute;inset:0;background:rgba(5,8,25,.88);display:none;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:16px;text-align:center;font-size:clamp(12px,2.6vw,20px)}
+#ov button,.c button{background:#2d5bd6;color:#fff;border:0;border-radius:8px;padding:8px 14px;font-size:inherit;cursor:pointer}
+#ov button.ok{background:#1f9d55}#ov button.no{background:#b33}
+#st>#go{position:absolute;inset:0;background:rgba(5,8,25,.8);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;padding:16px}
+#go button{background:#e8b630;color:#222;border:0;border-radius:999px;padding:10px 22px;font-size:18px;font-weight:600}
+.c{display:flex;gap:8px;align-items:center;padding:8px 0}
+.c button{font-size:15px}
+#bar{flex:1;height:8px;background:#223;border-radius:4px;overflow:hidden}#fill{height:100%;width:0;background:#e8b630}
+.dots{display:flex;gap:6px;justify-content:center}.dots i{width:10px;height:10px;border-radius:50%;background:#334;cursor:pointer}.dots i.on{background:#e8b630}
+@keyframes fi{from{opacity:0}to{opacity:1}}@keyframes fo{to{opacity:0}}
+@keyframes tw{50%{opacity:.25}}
+@keyframes bl{0%,92%,100%{transform:scaleY(1)}96%{transform:scaleY(.1)}}
+@keyframes mv{from{transform:translate(var(--fx,0px),var(--fy,0px))}to{transform:translate(var(--x,0px),var(--y,0px))}}
+@keyframes sc{from{transform:scale(var(--s0,1))}to{transform:scale(var(--s1,1))}}
+@keyframes bn{50%{transform:translateY(-1.2px)}}
+@keyframes sp{to{transform:rotate(360deg)}}
+@keyframes fk{50%{transform:scaleY(1.5)}}
+@keyframes ds{from{stroke-dashoffset:100}to{stroke-dashoffset:0}}
+.bl{transform-box:fill-box;transform-origin:center;animation:bl 4s infinite}
+.tw{animation:tw 3s infinite}.fk{transform-box:fill-box;transform-origin:top;animation:fk .3s infinite}
+.sp{transform-box:fill-box;transform-origin:center;animation:sp 1s linear infinite}
+.bn{animation:bn .5s infinite}
+</style></head><body><div class="w">
+<div id="st"><div id="go"><div style="font-size:clamp(16px,4vw,30px);font-weight:700">Dari Voyager sampai Persy</div><div>Video animasi 2D interaktif: 8 scene, 3 aktivitas</div><button id="start">▶ Mulai</button></div>
+<div id="cap"></div><div id="ov"></div></div>
+<div class="c"><button id="pp">⏸</button><button id="pv">⏮</button><button id="nx">⏭</button><button id="mu" title="Suara">🔊</button><select id="vs" title="Narrator voice" style="background:#223;color:#eef;border:0;border-radius:8px;padding:8px;max-width:45%;font-size:14px"></select><div id="bar"><div id="fill"></div></div></div>
+<div class="dots" id="dots"></div></div>
+<script>
+const E=(x,y,r=2)=>`<g class="bl">${[-1,1].map(s=>`<circle cx="${x+s*r*1.1}" cy="${y}" r="${r}" fill="#fff"/><circle cx="${x+s*r*1.1}" cy="${y}" r=".9" fill="#123" class="pu"/>`).join('')}</g>`;
+const ST=()=>{let s='<rect width="160" height="90" fill="#0a1233"/>';for(let i=0;i<45;i++)s+=`<circle class="tw" style="animation-delay:${i%5*.5}s" cx="${i*37%160}" cy="${i*53%75}" r="${.3+i%3*.2}" fill="#fff"/>`;return s};
+const EARTH=(x,y,r)=>`<circle cx="${x}" cy="${y}" r="${r+1.2}" fill="#6cf" opacity=".35"/><circle cx="${x}" cy="${y}" r="${r}" fill="#2b7bd6"/><path d="M${x-r*.5} ${y-r*.3}q${r*.4}-${r*.4} ${r*.7} 0t-${r*.2} ${r*.6}z" fill="#4caf50"/>`;
+const MOON=(y)=>`<path d="M0 ${y}Q80 ${y-8} 160 ${y}V90H0z" fill="#b9c1cd"/><circle cx="30" cy="${y+8}" r="3" fill="#a0a8b5"/><circle cx="120" cy="${y+12}" r="4" fill="#a0a8b5"/>`;
+const mv=(a,t,d,fx,fy,x,y,ease='ease-in-out')=>`style="--fx:${fx}px;--fy:${fy}px;--x:${x}px;--y:${y}px;animation:mv ${t}s ${d}s ${ease} both"`;
+const VOY=`<g><ellipse cx="5.5" cy="-5" rx="9" ry="3.2" fill="#fff" stroke="#bbb" stroke-width=".3"/><line x1="5.5" y1="-5" x2="5.5" y2="0" stroke="#e8b630"/><line x1="11" y1="4" x2="23" y2="9" stroke="#aaa" stroke-width=".6"/><rect width="11" height="9" rx="1.5" fill="#e8b630" stroke="#a6791a" stroke-width=".4"/>${E(5.5,4,1.5)}<path d="M3 7q2.5 2 5 0" stroke="#7a4b00" fill="none" stroke-width=".4"/></g>`;
+const LANDER=`<g><rect x="2" y="-4" width="12" height="6" rx="1" fill="#e8b630" stroke="#a6791a" stroke-width=".3"/><rect x="0" y="2" width="16" height="3" fill="#d9a227"/><path d="M1 5l-3 4M15 5l3 4" stroke="#999" stroke-width=".6"/></g>`;
+const ROVER=`<g><rect x="1" y="2" width="10" height="2" fill="#bbb"/><circle cx="2" cy="6" r="2" fill="none" stroke="#ddd" stroke-width=".8"/><circle cx="10" cy="6" r="2" fill="none" stroke="#ddd" stroke-width=".8"/></g>`;
+const mars='<defs><linearGradient id="mg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e98a4b"/><stop offset="1" stop-color="#f2b27a"/></linearGradient></defs><rect width="160" height="90" fill="url(#mg)"/><path d="M0 60l25-12 25 10 30-14 35 14 45-10V90H0z" fill="#b5532b"/><path d="M0 68Q80 60 160 70V90H0z" fill="#9a4322"/>';
+const wheel=(x,y,r,c='#222')=>`<g transform="translate(${x} ${y})"><g class="sp"><circle r="${r}" fill="${c}"/><path d="M-${r} 0H${r}M0 -${r}V${r}" stroke="#777" stroke-width=".4"/></g></g>`;
+const OPPY=(x,y)=>`<g transform="translate(${x} ${y})"><rect x="-9" y="-6" width="18" height="6" rx="1" fill="#d8dce2" stroke="#889" stroke-width=".3"/><rect x="-6" y="-9" width="12" height="3" fill="#2a3a6a"/><line x1="4" y1="-9" x2="4" y2="-15" stroke="#ccc" stroke-width=".7"/><rect x="2.5" y="-17" width="3" height="3" fill="#333"/>${E(-1,-3,1.6)}${[-7,0,7].map(a=>wheel(a,1,2.2)).join('')}</g>`;
+const SAT=`<rect x="-5" y="0" width="10" height="26" fill="#fff" stroke="#999" stroke-width=".3"/><rect x="-5" y="3" width="10" height="3" fill="#222"/><rect x="-5" y="-12" width="10" height="12" fill="#f4f4f4" stroke="#999" stroke-width=".3"/>`;
+const sol=`<circle cx="80" cy="45" r="5" fill="#ffb300"/>${[10,16,22,29,38].map(r=>`<circle cx="80" cy="45" r="${r}" fill="none" stroke="#fff3" stroke-width=".3"/>`).join('')}<circle cx="96" cy="45" r="1.4" fill="#4aa3ff"/><circle cx="110" cy="45" r="1.2" fill="#e0592a"/><circle cx="62" cy="45" r="2.4" fill="#d8b98a"/>`;
+const IMG=(n)=>'';
+const S=[
+{d:16000,c:[[0,"Deep in space, a little traveler drifts: Voyager 1."],[6000,"Earth glows in the distance… and the Moon waits quietly."],[10000,"An abandoned Apollo lander and a small rover rest on the dusty surface."]],
+ s:()=>ST()+EARTH(128,26,7)+`<g style="transform-origin:80px 80px;--s0:1;--s1:1.5;animation:sc 6s 9s ease-in-out both"><g style="opacity:0;animation:fi 3s 5s both">${MOON(70)}<g transform="translate(52 66)">${LANDER}</g><g transform="translate(92 70)">${ROVER}</g></g></g><g transform="translate(0 0)"><g ${mv(0,10,0,-30,40,70,28)}><g class="bn" style="animation-duration:3s">${VOY}</g></g></g>`},
+{d:18000,c:[[0,"Saturn V: a giant rocket, standing tall on the pad."],[3000,"Engines ignite! Smoke billows as it slowly rises."],[7000,"Three stages: each empty stage detaches as the next engine ignites."],[11000,"Now a cheerful Delta II launches a Mars rover, Opportunity."]],a:{t:15500,q:"Pause the video! Which rocket is taller, Saturn V or Delta II? Hint: one of them is giant.",o:["Saturn V","Delta II"],ok:0,fb:"Saturn V: about 111 m. Delta II: about 39 m."},
+ s:()=>'<rect width="160" height="90" fill="#7fc8f8"/><rect y="75" width="160" height="15" fill="#6a8f4c"/><rect x="38" y="30" width="4" height="45" fill="#889"/><rect x="38" y="30" width="9" height="2" fill="#889"/>'+
+ `<g ${mv(0,8,2.5,0,0,0,-95,'ease-in')}><g transform="translate(60 49)"><g style="animation:fo 1s 6s both,mv 3s 6s ease-in both;--fx:0px;--fy:0px;--x:-6px;--y:30px"><rect x="-5" y="0" width="10" height="26" fill="#fff" stroke="#999" stroke-width=".3"/><rect x="-5" y="3" width="10" height="3" fill="#222"/>${E(0,14,1.8)}<path d="M-2 19q2 1.5 4 0" stroke="#744" fill="none" stroke-width=".4"/><path d="M-4 26l4 12 4-12z" class="fk" fill="#ff8a00" style="animation-delay:0s"/></g><rect x="-5" y="-12" width="10" height="12" fill="#f4f4f4" stroke="#999" stroke-width=".3"/><path d="M-5 -12l5-8 5 8z" fill="#ddd"/><path d="M-3 0l3 8 3-8z" class="fk" fill="#ffb300"/></g></g>`+
+ `<g style="opacity:.0;animation:fi .5s 2.5s both"><circle cx="60" cy="74" r="6" fill="#fff" opacity=".8"/><circle cx="52" cy="72" r="5" fill="#eee" opacity=".7"/><circle cx="68" cy="72" r="5" fill="#eee" opacity=".7"/></g>`+
+ `<g style="opacity:0;animation:fi 1s 11s both"><g ${mv(0,5,12,0,0,0,-90,'ease-in')}><g transform="translate(120 56)"><rect x="-2.5" y="0" width="5" height="19" fill="#c33"/><path d="M-2.5 0l2.5-6 2.5 6z" fill="#eee"/>${E(0,9,1.2)}<path d="M-2 19l2 8 2-8z" class="fk" fill="#ff8a00"/></g></g></g>`},
+{d:16000,c:[[0,"Apollo 11’s Eagle stands on the Moon, golden foil gleaming."],[5000,"The ascent stage separates and rises toward lunar orbit."],[10000,"The descent stage stays behind on the gray, dusty surface."]],
+ s:()=>ST()+EARTH(132,18,6)+MOON(72)+`<g transform="translate(70 66)"><path d="M1 0l-5 8M15 0l5 8M3 0l-1 8M13 0l1 8" stroke="#999" stroke-width=".6"/><rect y="-2" width="16" height="4" fill="#d9a227" stroke="#a6791a" stroke-width=".3"/><g ${mv(0,6,5,0,0,24,-46,'ease-in')}><rect x="2" y="-12" width="12" height="10" rx="2" fill="#e8b630" stroke="#a6791a" stroke-width=".3"/>${E(8,-8,1.8)}<path d="M6 -4q2 1.5 4 0" stroke="#744" fill="none" stroke-width=".4"/><path d="M5 -2l3 6 3-6z" class="fk" fill="#ffb300" style="opacity:0;animation:fi .2s 5s both"/></g></g>`},
+{d:16000,c:[[0,"The Lunar Roving Vehicle bounces across the Moon, leaving tracks in the dust."]],a:{t:12000,q:"Think about it: why would a vehicle for the Moon need to be light and electric? Pause and guess!",o:[],fb:"Every kilogram costs fuel to launch, and there is no air on the Moon, so engines that burn fuel can’t work. Batteries and electric motors do!"},
+ s:()=>ST()+EARTH(125,20,8)+MOON(60)+`<path d="M-10 78H170" stroke="#8a929e" stroke-width=".6" stroke-dasharray="1 1.5"/><g ${mv(0,16,0,-25,0,175,0,'linear')}><g class="bn" transform="translate(0 0)"><g transform="translate(0 66)"><rect x="0" y="0" width="22" height="3" fill="#bbb"/><rect x="2" y="-3" width="8" height="3" fill="#889"/><circle cx="14" cy="-8" r="2.2" fill="#fff"/><rect x="12" y="-6" width="4" height="6" fill="#fff"/>${E(6,-5.5,1.2)}<path d="M4 -3q2 1.2 4 0" stroke="#744" fill="none" stroke-width=".4"/>${[3,19].map(x=>wheel(x,7,3.5,'#777')).join('')}</g></g></g>`},
+{d:17000,c:[[0,"A retroreflector array rests on the Moon, built from tiny corner-cube mirrors."],[5000,"A red laser leaves an Earth observatory and travels toward the Moon…"],[10000,"…hits the retroreflector, and returns straight back to Earth."]],
+ s:()=>ST()+EARTH(20,72,15)+`<circle cx="125" cy="28" r="12" fill="#b9c1cd"/><rect x="119" y="24" width="12" height="8" rx="1" fill="#556" stroke="#fff" stroke-width=".3"/><g style="opacity:0;animation:fi .5s 2s both"><rect x="118" y="44" width="38" height="38" rx="3" fill="#111a3a" stroke="#6cf" stroke-width=".5"/>${[0,1,2].flatMap(r=>[0,1,2].map(c=>`<circle cx="${127+c*10}" cy="${53+r*10}" r="3.2" fill="#9ad" stroke="#fff" stroke-width=".3"/>`)).join('')}<text x="137" y="86" font-size="3" fill="#cde" text-anchor="middle">corner-cube mirrors</text></g><defs><marker id="ar" markerWidth="4" markerHeight="4" refX="3" refY="2" orient="auto"><path d="M0 0L4 2 0 4z" fill="#f33"/></marker></defs><path d="M32 62L118 31" pathLength="100" stroke="#f33" stroke-width="1" stroke-dasharray="100" fill="none" marker-end="url(#ar)" style="stroke-dashoffset:100;animation:ds 4s 5s linear both"/><path d="M118 33L32 64" pathLength="100" stroke="#ff9a9a" stroke-width=".8" stroke-dasharray="100" fill="none" marker-end="url(#ar)" style="stroke-dashoffset:100;animation:ds 4s 10s linear both"/><text x="80" y="10" font-size="4" fill="#fff" text-anchor="middle">Earth → Moon → Earth</text>`},
+{d:20000,c:[[0,"Mars: rocky terrain, dusty hills, a warm orange sky."],[3000,"Oppy lands: parachute, airbags, a gentle bounce… then unfolds."],[9000,"It explores ancient rocks and finds evidence of Mars’ watery past."],[13000,"A massive dust storm approaches. The sky darkens and Oppy’s eyes slowly dim."]],
+ s:()=>mars+'<ellipse cx="40" cy="74" rx="6" ry="2" fill="#7a3a1c"/><ellipse cx="125" cy="78" rx="8" ry="2.5" fill="#7a3a1c"/><path d="M110 76q6-4 14 0z" fill="#6aa7d8" opacity=".6"/>'+
+ `<g ${mv(0,3,3,0,-40,0,0,'ease-in')}><g style="animation:fo .6s 7s both"><g transform="translate(80 52)"><path d="M-14-26a14 10 0 0 1 28 0z" fill="#fff" stroke="#ccc" stroke-width=".3" style="animation:fo .5s 5s both"/><path d="M-14-26L-4-4M14-26L4-4" stroke="#fff" stroke-width=".3" style="animation:fo .5s 5s both"/><circle cy="2" r="9" fill="#ddd" stroke="#999" stroke-width=".4" opacity=".9"/></g></g></g>`+
+ `<g style="opacity:0;animation:fi .5s 7s both"><g ${mv(0,6,9,0,0,38,0)}><g style="animation:bn .6s infinite">${OPPY(60,74)}</g></g></g>`+
+ `<rect width="160" height="90" fill="#7a2f10" style="opacity:0;animation:fi 6s 13s both"/><rect width="160" height="90" fill="#000" style="opacity:0;animation:fi 4s 16s both;--o:.4"/>`},
+{d:15000,c:[[0,"Persy, the Perseverance rover, enters Jezero crater."],[6000,"Six black wheels roll over reddish rocks, kicking up tiny dust clouds."],[10000,"Camera moves to a heroic front view."]],
+ s:()=>mars+'<path d="M0 55Q40 30 80 52T160 48V60H0z" fill="#c4683a"/>'+`<g ${mv(0,10,0,-30,0,70,0,'ease-in-out')}><g class="bn" style="animation-duration:.8s"><g transform="translate(20 74)"><rect x="-12" y="-9" width="24" height="7" rx="1.5" fill="#f2f2f2" stroke="#aaa" stroke-width=".3"/><rect x="-12" y="-5" width="24" height="2" fill="#e8b630"/><line x1="6" y1="-9" x2="6" y2="-20" stroke="#ddd" stroke-width="1"/><rect x="3" y="-23" width="7" height="4" rx=".8" fill="#333"/>${E(7,-21,1.1)}<path d="M-12-6l-8 4" stroke="#aaa" stroke-width="1"/>${[-9,0,9].map(a=>wheel(a,1,2.6)).join('')}</g></g></g><g style="opacity:0;animation:fi 1s 10s both"><rect width="160" height="90" fill="#0006"/><g transform="translate(80 70) scale(2.4)"><rect x="-10" y="-9" width="20" height="7" rx="1.5" fill="#f2f2f2" stroke="#aaa" stroke-width=".3"/><rect x="-10" y="-5" width="20" height="2" fill="#e8b630"/><line x1="0" y1="-9" x2="0" y2="-18" stroke="#ddd" stroke-width="1"/><rect x="-4" y="-22" width="8" height="5" rx="1" fill="#333"/>${E(0,-19.5,1.2)}${[-11,-7,-3,3,7,11].map(a=>`<circle cx="${a}" cy="1" r="2" fill="#222"/>`).join('')}</g></g>`},
+{d:46000,c:[[0,"Let’s remember three big ideas."],[3000,"First, they help us measure: retroreflectors on the Moon measure the Earth–Moon distance with laser pulses."],[10000,"Second, they help us discover: Mars rover data reveals rocks, soil and the history of the Martian environment."],[17500,"Third, they teach us responsibility: mission planning must consider what happens to spacecraft after their missions end, including ways to protect other worlds."],[30000,"Oppy: Meeting summary: missions can end, but science doesn’t retire with them."],[36500,"…and the lonely rover on Mars looks up toward home."]],a:{t:29000,q:"Final quiz: Which equipment helps scientists measure the Earth–Moon distance with lasers?",o:["A. Retroreflector","B. Camera","C. Parachute"],ok:0,fb:"Answer: A, Retroreflector."},
+ s:()=>ST()+`<g style="opacity:0;animation:fi 2s 36s both"><g style="transform-origin:80px 45px;--s0:3;--s1:1;animation:sc 7s 36s ease-out both">${sol}</g></g><g style="transform-origin:80px 70px;--s0:1;--s1:.05;animation:sc 7s 36s ease-in both"><g style="animation:fo 3s 40s both">${mars}${OPPY(80,74)}</g></g>`}
+];
+let i=0,t=0,pl=false,wait=false,fired=[],muted=false;
+const SS=window.speechSynthesis;
+function speak(tx){if(!SS)return;SS.cancel();if(muted||!pl)return;clearTimeout(speak.h);speak.h=setTimeout(()=>{const oppy=tx.startsWith('Oppy:');const u=new SpeechSynthesisUtterance(tx.replace(/^Oppy:\s*/,'').replace(/[✅❌…]/g,''));u.lang='en-US';u.rate=1.05;u.pitch=1;const V=SS.getVoices();const v=oppy?(V.find(v=>/\bAna\b/i.test(v.name))||V.find(v=>/^en-US/i.test(v.lang))):(V.find(v=>v.voiceURI===$('vs').value)||V.find(v=>/Sonia/i.test(v.name))||V.find(v=>/^en-GB/i.test(v.lang))||V.find(v=>/^en/i.test(v.lang)));if(v){u.voice=v;u.lang=v.lang}if(oppy&&!(v&&/\bAna\b/i.test(v.name)))u.pitch=1.5;SS.speak(u)},150)}
+const $=id=>document.getElementById(id),st=$('st'),total=S.reduce((a,s)=>a+s.d,0);
+$('dots').innerHTML=S.map((_,k)=>`<i data-k="${k}"></i>`).join('');
+function load(k){i=Math.max(0,Math.min(S.length-1,k));t=0;fired=[];wait=false;$('ov').style.display='none';
+ let svg=st.querySelector('svg');if(svg)svg.remove();st.insertAdjacentHTML('afterbegin',`<svg viewBox="0 0 160 90" class="${pl?'':'pz'}">${S[i].s()}</svg>`);
+ $('cap').textContent=S[i].c[0][1];speak(S[i].c[0][1]);[...$('dots').children].forEach((d,j)=>d.className=j==i?'on':'');}
+function act(a){wait=true;const o=$('ov');o.style.display='flex';sync();speak(a.q);
+ const done=m=>{speak(m);o.innerHTML=`<div>${m}</div><button id="cc">Lanjut ▶</button>`;$('cc').onclick=()=>{o.style.display='none';wait=false;sync()}};
+ o.innerHTML=`<div>${a.q}</div><div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center">${a.o.length?a.o.map((x,k)=>`<button data-k="${k}">${x}</button>`).join(''):'<button data-k="r">Tampilkan jawaban</button>'}</div>`;
+ o.querySelectorAll('[data-k]').forEach(b=>b.onclick=()=>{const k=b.dataset.k;const good=k==='r'||+k===a.ok;done((k==='r'?'':good?'✅ Nice! ':'❌ Not quite. ')+a.fb)})}
+function sync(){if(SS){if(pl)SS.resume();else SS.pause()}const s=st.querySelector('svg');if(s)s.classList.toggle('pz',!pl||wait);$('pp').textContent=pl?'⏸':'▶'}
+setInterval(()=>{if(!pl||wait)return;t+=100;const s=S[i];
+ s.c.forEach(([ct,tx],k)=>{if(t>=ct&&!fired.includes('c'+k)){fired.push('c'+k);$('cap').textContent=tx;speak(tx)}});
+ if(s.a&&t>=s.a.t&&!fired.includes('a')){fired.push('a');act(s.a)}
+ if(t>=s.d){if(i<S.length-1)load(i+1);else{pl=false;sync()}}
+ let el=S.slice(0,i).reduce((a,x)=>a+x.d,0)+Math.min(t,s.d);$('fill').style.width=el/total*100+'%'},100);
+$('start').onclick=()=>{$('go').style.display='none';if(SS){const z=new SpeechSynthesisUtterance(' ');z.volume=0;SS.speak(z)}else{$('mu').textContent='🔇';$('mu').title='This browser has no speech support'}pl=true;load(0);sync()};
+$('pp').onclick=()=>{if(i==S.length-1&&t>=S[i].d)load(0);pl=!pl;sync()};
+$('mu').onclick=()=>{muted=!muted;$('mu').textContent=muted?'🔇':'🔊';if(muted&&SS)SS.cancel();if(!muted&&SS){SS.cancel();const u=new SpeechSynthesisUtterance('Sound is on');u.lang='en-US';SS.speak(u)}};function fv(){if(!SS)return;const l=SS.getVoices().filter(v=>/^en/i.test(v.lang));const cur=$('vs').value;$('vs').innerHTML=l.map(v=>`<option value="${v.voiceURI}">${v.name} (${v.lang})</option>`).join('');if(cur)$('vs').value=cur;else{const s=SS.getVoices().find(v=>/Sonia/i.test(v.name))||SS.getVoices().find(v=>/^en-GB/i.test(v.lang));if(s)$('vs').value=s.voiceURI}}fv();if(SS)SS.onvoiceschanged=fv;$('vs').onchange=()=>{if(!SS)return;SS.cancel();const v=SS.getVoices().find(v=>v.voiceURI===$('vs').value);const u=new SpeechSynthesisUtterance('Hello, I am your narrator.');u.lang='en-US';if(v)u.voice=v;SS.speak(u)};
+$('nx').onclick=()=>load(i+1);$('pv').onclick=()=>load(i-1);
+$('dots').onclick=e=>{if(e.target.dataset.k!=null)load(+e.target.dataset.k)};
+load(0);
+</script></body></html>
