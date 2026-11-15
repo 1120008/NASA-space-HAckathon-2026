@@ -3,7 +3,7 @@
  <head>
  <meta charset="UTF-8">
  <meta name="viewport" content="width--device-width, initial-scale=1">
- <title>Ebook The Left Space Rover</title>
+ <title>Ebook The Space Left Behind</title>
    <meta name="description" content="Baca eboook langsung di browser">
 <link rel="preconnect" href="https"//fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com">
@@ -171,6 +171,187 @@
       .frame {height:70vh;}
     }
  </style>
+  <body>
+
+<header>
+  <div>
+    <h1 id="site-title">Perpustakaan Ebook</h1>
+    <p id="site-sub">Pilih buku, lalu baca langsung di halaman ini.</p>
+  </div>
+  <button class="btn" id="theme-btn" type="button" aria-label="Ganti tema terang atau gelap">Tema</button>
+</header>
+
+<main>
+  <nav class="shelf" aria-label="Daftar buku">
+    <h2>Koleksi buku</h2>
+    <ul class="book-list" id="book-list"></ul>
+  </nav>
+
+  <section class="reader" aria-live="polite">
+    <div class="reader-head">
+      <div>
+        <h2 id="book-title"></h2>
+        <p id="book-desc"></p>
+      </div>
+      <div class="actions">
+        <button class="btn primary" id="fs-btn" type="button">Layar penuh</button>
+        <a class="btn" id="open-btn" href="#" target="_blank" rel="noopener">Buka di tab baru</a>
+        <button class="btn" id="copy-btn" type="button">Salin tautan</button>
+      </div>
+    </div>
+    <div class="frame" id="frame"></div>
+    <p class="hint">Jika buku tidak tampil, pastikan tautan embed mengizinkan ditampilkan di situs lain.</p>
+  </section>
+</main>
+
+<footer id="footer"></footer>
+
+<script>
+/* ==========================================================
+   PENGATURAN — cukup edit bagian ini
+   ========================================================== */
+const SITE = {
+  title: "Perpustakaan Ebook",
+  subtitle: "Pilih buku, lalu baca langsung di halaman ini.",
+  footer: "© 2026 Nama Anda"
+};
+
+/*
+  Tambahkan buku di daftar BOOKS.
+  - id    : kode unik tanpa spasi (dipakai di tautan, contoh: index.html#buku-1)
+  - title : judul buku
+  - desc  : deskripsi singkat
+  - embed : tempel URL embed ATAU seluruh kode <iframe ...> dari layanan ebook
+            (Heyzine, Canva, FlippingBook, AnyFlip, Google Drive, Issuu, dll.)
+  - cover : (opsional) alamat gambar sampul, mis. "img/cover1.jpg"
+*/
+const BOOKS = [
+  {
+    id: "buku-1",
+    title: "Judul Buku Pertama",
+    desc: "Deskripsi singkat buku pertama.",
+    embed: "",   // <-- tempel link embed di sini
+    cover: ""
+  },
+  {
+    id: "buku-2",
+    title: "Judul Buku Kedua",
+    desc: "Deskripsi singkat buku kedua.",
+    embed: "",   // <-- tempel link embed di sini
+    cover: ""
+  }
+];
+
+/* ==========================================================
+   KODE PROGRAM — tidak perlu diubah
+   ========================================================== */
+const $ = (id) => document.getElementById(id);
+
+// Terima URL biasa, atau kode <iframe src="...">
+function getSrc(embed) {
+  const text = (embed || "").trim();
+  if (!text) return "";
+  const m = text.match(/src\s*=\s*["']([^"']+)["']/i);
+  return (m ? m[1] : text).replace(/&amp;/g, "&");
+}
+
+function el(tag, props = {}, children = []) {
+  const node = Object.assign(document.createElement(tag), props);
+  children.forEach((c) => node.append(c));
+  return node;
+}
+
+function renderList(activeId) {
+  const list = $("book-list");
+  list.replaceChildren();
+  BOOKS.forEach((book) => {
+    const cover = book.cover
+      ? el("img", { className: "cover", src: book.cover, alt: "", loading: "lazy" })
+      : el("div", { className: "cover", textContent: (book.title || "?").trim().charAt(0).toUpperCase() });
+    const text = el("div", {}, [
+      el("strong", { textContent: book.title }),
+      el("span", { textContent: book.desc || "" })
+    ]);
+    const btn = el("button", { className: "book-item", type: "button" }, [cover, text]);
+    btn.setAttribute("aria-current", String(book.id === activeId));
+    btn.addEventListener("click", () => { location.hash = book.id; });
+    list.append(el("li", {}, [btn]));
+  });
+}
+
+function showBook(id) {
+  const book = BOOKS.find((b) => b.id === id) || BOOKS[0];
+  if (!book) return;
+
+  renderList(book.id);
+  $("book-title").textContent = book.title;
+  $("book-desc").textContent = book.desc || "";
+  document.title = book.title + " | " + SITE.title;
+
+  const src = getSrc(book.embed);
+  const frame = $("frame");
+  frame.replaceChildren();
+
+  const openBtn = $("open-btn");
+  if (src) {
+    const iframe = el("iframe", {
+      src,
+      title: book.title,
+      allowFullscreen: true,
+      loading: "lazy"
+    });
+    iframe.setAttribute("allow", "fullscreen");
+    frame.append(iframe);
+    openBtn.href = src;
+    openBtn.style.display = "";
+  } else {
+    frame.append(el("div", { className: "empty", textContent: "Tautan embed untuk buku ini belum ditambahkan." }));
+    openBtn.style.display = "none";
+  }
+}
+
+function currentId() { return decodeURIComponent(location.hash.slice(1)); }
+
+// Tema
+function applyTheme(t) {
+  if (t) document.documentElement.setAttribute("data-theme", t);
+  else document.documentElement.removeAttribute("data-theme");
+}
+try { applyTheme(localStorage.getItem("theme")); } catch (e) {}
+$("theme-btn").addEventListener("click", () => {
+  const dark = document.documentElement.getAttribute("data-theme") === "dark" ||
+    (!document.documentElement.hasAttribute("data-theme") && matchMedia("(prefers-color-scheme: dark)").matches);
+  const next = dark ? "light" : "dark";
+  applyTheme(next);
+  try { localStorage.setItem("theme", next); } catch (e) {}
+});
+
+// Tombol aksi
+$("fs-btn").addEventListener("click", () => {
+  const frame = $("frame");
+  if (document.fullscreenElement) document.exitFullscreen();
+  else if (frame.requestFullscreen) frame.requestFullscreen();
+});
+$("copy-btn").addEventListener("click", async (e) => {
+  const btn = e.currentTarget;
+  try {
+    await navigator.clipboard.writeText(location.href);
+    btn.textContent = "Tautan disalin";
+  } catch (err) {
+    btn.textContent = "Salin manual dari address bar";
+  }
+  setTimeout(() => { btn.textContent = "Salin tautan"; }, 2000);
+});
+
+// Mulai
+$("site-title").textContent = SITE.title;
+$("site-sub").textContent = SITE.subtitle;
+$("footer").textContent = SITE.footer;
+window.addEventListener("hashchange", () => showBook(currentId()));
+showBook(currentId());
+</script>
+</body>
+</html>
  </head>
    
       
