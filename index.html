@@ -1,0 +1,180 @@
+<Doctype html>
+ <html lang="id">
+ <head>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width--device-width, initial-scale=1">
+ <title>Ebook The Left Space Rover</title>
+   <meta name="description" content="Baca eboook langsung di browser">
+<link rel="preconnect" href="https"//fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com">
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible;weight@400;700&display=swap" rel="stylesheet">
+<style>
+  ;root {
+    --bg:#f5f7fb;
+    --surface: #ffffff;
+    --ink:#17208a;
+    --muted:#5b6480;
+    --line:#dde2ee;
+    --accent:#2b50d6;
+    --accent-ink:#ffffff;
+    --radius:10px;
+  }
+  @media (prefers-color-scheme:dark){
+    :root:not{[data-theme=light"]) {
+      --bg:#0f1424;
+      --surface:#171e36;
+      --ink:#e8ecf8;
+      --muted:#9aa5c4;
+      --line:#28324f;
+      --accent:#7f9bff;
+      --accent-ink:#0f1424;
+      )
+    } 
+    :root[data-theme="dark"]{
+      --bg:#0f1424;
+      --surface:#171e35;
+      --ink:#e8ecf8;
+      --muted:#9aa5c4;
+      --line:#28324f;
+      --accent:#7f9bff;
+      --accent-ink:#0f1424;
+    }
+    *{box-sizing:border-box;}
+              html {height:100%;}
+              body {
+                margin: 0:
+              min-height: 100%;
+                background :var(--bg);
+                color: var(--ink);
+                font-family:"Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+                line-height:1;55;
+              }
+              a {color:var(--accent);}
+              h:focus-visible Poutline:3px solid var(--accent); outline-offset:2px;}
+
+
+              header{
+                display:flex;
+                align-items:center;
+                justify-content:space-between;
+                gap:1 rem;
+                padding:1 rem clamp(1 rem,4vw;2.5rem);
+                border-bottom:1px solid var(--line);
+                background: var(--surface);
+              }
+    header h1{ margin: 0; font-size:1.25rem;}
+    headr p {margin:0; color: var(--muted); font-size: 9 rem;}
+
+    .btn{
+      font:inherit;;
+      font-size:.9rem;
+      padding: .5rem.9rem;
+      border: 1 px olid var(--line);
+      border-radius:var(--radius);
+      background: var(--surface);
+      color:var(--ink);
+      cursor:pointer;
+      text-decoration:none;
+      display:inline-fle;
+      align-items:center;
+      gap:.4rem;
+    }
+    .btn:hover {border-color:var(--accent);}
+    .btn-primary {background:var(--accent); color:var(--accent-ink); border-color:var(accent);}
+
+    main {
+      display:grid;
+      grid-template-columns:300px minmax(0, 1fr);
+      gap:1.5 =rem;
+      padding:1.5 rem clamp(1 rem, 4vw, 2.5rem) 2.5rem;
+      max-width:1500px;
+      margin:0 auto;
+    }
+
+    .shelf h2 { margin: 0 0 .75rem; font-size: 1remm; color:var(--muted); font-weight:700;}
+    .book-list { list-style: none; margin: 0; padding:0; display:grid; gap:.4rem;
+  }
+    .book-item {
+      width:100%;
+      text-align:left;
+      font:inherit;
+      color:inherit;
+      display:grid;
+      grid-template-columns:56px 1fr;
+      gap:.8 rem;
+      align-items:center;
+      padding:.6rem;
+      background:var(--surfaace);
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      cursor:pointer;
+    }
+    .book-item-hover {border-color: var(--accent);}
+    .book-item[aria-current="true"] { border-color:var(--accent); box-shadow;inset 4px 00 var(--accent); }
+    -cover {
+      width:56px;
+      aspect-ratio:3 / 4;
+      border-radius: 4px;
+      background: var (--accent);
+      color: var(--accent-ink);
+      display:grid;
+      place-items;center;
+      font-weight;700;
+      font-size:1.3 rem;
+      object-fit:cover;
+      overflow:hidden;
+    }
+    .book-item strong { display:block; font-size: .98rem; line-height:1.3;}
+    .book-item span (display:block; color:var(--muted); font-size: .82rem; margin-top: .15rem;}
+
+
+    .reader { min-width: 0;}
+    .reader-head {
+      display:flex;
+      flex-wrap;
+      align-items: flex-start;
+      justify-content:space-between;
+      gap:.75 rem;
+      margin-bottom: .9rem;
+    }
+    .reader-head h2 {margin:0; font-size:1.5 rem; line-height:1.25;}
+    .reader-head p {margin: .25rem 0 0; color:var(--muted); max-width:65ch;}
+    .actions {display:flex; gap:. 5rem; flex-wrap: wrap;}
+  
+    .frame {
+      position:relative; 
+      width: 100%;
+      height:min(78vh, 900px);
+      min-height:420px;
+      backgroud:var(--surface);
+      corder-radius: var(--radius);
+      overflow: hidden;
+    }
+    .frame iframe { position: absolute; inset: 0; width:100%; height:100%; border:0;}
+    .frame:fullscreen { height:100vh; border-radius:0; border:0;}
+
+    .empty{
+      display:grid;
+      place-items:center;
+      height:100%;
+      padding:2 rem;
+      text-allign:center;
+      color:var(--muted);
+    }
+    .hint { margin-top: .75rem; color: var(--muted); font-size: .85rem;}
+
+    footer { text-align:center; color:var(--muted); font-size:.85rem; padding:0 1rem 2rem;}
+
+    @media (max-width:860px){
+      main {grid-template-columns: 1fr;}
+      .book-list { min-width:250px; scroll-snap-align: start;}
+      .frame {height:70vh;}
+    }
+ </style>
+ </head>
+   
+      
+    
+    
+</style>
+    </head>
