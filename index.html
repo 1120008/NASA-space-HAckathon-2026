@@ -269,7 +269,15 @@ function normalizeUrl(url) {
   } catch (e) {}
   return url;
 }
-
+const iframe = [
+  {
+    id: "left-behind",
+    title: "Misi Antariksa: Video Interaktif",
+    desc: "Video animasi interaktif tentang misi antariksa.",
+    embed: "./Misi%20Antariksa_%20Video%20Interaktif%20%284%29%20%282%29.html",
+    cover: ""
+  }
+];
 function el(tag, props = {}, children = []) {
   const node = Object.assign(document.createElement(tag), props);
   children.forEach((c) => node.append(c));
