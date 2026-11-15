@@ -185,8 +185,8 @@
 </header>
 
 <main>
-  <nav class="shelf" aria-label="Daftar buku">
-    <h2>Buku Anak Tingkat Sekolah Dasar dan Menengah</h2>
+  <nav class="shelf" aria-label="Daftar buku dan video">
+    <h2>Buku dan Video</h2>
     <ul class="book-list" id="book-list"></ul>
   </nav>
 
@@ -202,39 +202,19 @@
       </div>
     </div>
     <div class="frame" id="frame"></div>
-    <p class="hint">Jika buku tidak tampil, pastikan tautan embed mengizinkan ditampilkan di situs lain. Klik salin tautan </p>
+    <p class="hint">Pilih buku atau video dari daftar di samping untuk ditampilkan di sini.</p>
   </section>
-<iframe src="https://1120008.github.io/NASA-space-HAckathon-2026/" 
-  width="960" height="540"
-  style="border:0;max-width:100%;aspect-ratio:16/9"
-  allow="autoplay; fullscreen"
-  title="Misi Antariksa: Video Interaktif"
-  loading="lazy">
-  
-  </iframe>
 </main>
 
 <footer id="footer"></footer>
 
 <script>
-/* ==========================================================
-   PENGATURAN — cukup edit bagian ini
-   ========================================================== */
 const SITE = {
   title: "The Space Left Behind",
-  subtitle: "Baca ebook langsung di browser.",
+  subtitle: "Pilih buku atau video, lalu tampilkan langsung di halaman ini.",
   footer: "© Elfrida dan Ayu Wulandari | 2026"
 };
 
-/*
-  Tambahkan buku di daftar BOOKS.
-  - id    : kode unik tanpa spasi (dipakai di tautan, contoh: index.html#buku-1)
-  - title : judul buku
-  - desc  : deskripsi singkat
-  - embed : tempel URL embed ATAU seluruh kode <iframe ...> dari layanan ebook
-            (Heyzine, Canva, FlippingBook, AnyFlip, Google Drive, Issuu, dll.)
-  - cover : (opsional) alamat gambar sampul, mis. "img/cover1.jpg"
-*/
 const BOOKS = [
   {
     id: "left-behind",
@@ -242,15 +222,18 @@ const BOOKS = [
     desc: "Ebook sains bergambar tentang peralatan antariksa yang tertinggal.",
     embed: "https://www.canva.com/design/DAHahAxAbkM/lyB0wfbpqo5Fx6JDSPMKbw/view?embed",
     cover: ""
+  },
+  {
+    id: "misi-antariksa",
+    title: "Misi Antariksa: Video Interaktif",
+    desc: "Video animasi interaktif tentang misi dan peralatan antariksa.",
+    embed: "./Misi%20Antariksa_%20Video%20Interaktif%20(4)%20(2).html",
+    cover: ""
   }
 ];
 
-/* ==========================================================
-   KODE PROGRAM — tidak perlu diubah
-   ========================================================== */
 const $ = (id) => document.getElementById(id);
 
-// Terima URL biasa, atau kode <iframe src="...">
 function getSrc(embed) {
   const text = (embed || "").trim();
   if (!text) return "";
@@ -258,26 +241,19 @@ function getSrc(embed) {
   return normalizeUrl((m ? m[1] : text).replace(/&amp;/g, "&"));
 }
 
-// Link Canva biasa (/view) diblokir saat di-embed; tambahkan ?embed otomatis
 function normalizeUrl(url) {
   try {
-    const u = new URL(url);
+    const u = new URL(url, location.href);
     if (/(^|\.)canva\.com$/.test(u.hostname) && u.pathname.includes("/design/") && !u.searchParams.has("embed")) {
       u.searchParams.set("embed", "");
       return u.toString().replace("embed=", "embed");
     }
-  } catch (e) {}
-  return url;
-}
-const iframe = [
-  {
-    id: "left-behind",
-    title: "Misi Antariksa: Video Interaktif",
-    desc: "Video animasi interaktif tentang misi antariksa.",
-    embed: "./Misi%20Antariksa_%20Video%20Interaktif%20%284%29%20%282%29.html",
-    cover: ""
+    return u.toString();
+  } catch (e) {
+    return url;
   }
-];
+}
+
 function el(tag, props = {}, children = []) {
   const node = Object.assign(document.createElement(tag), props);
   children.forEach((c) => node.append(c));
@@ -319,18 +295,18 @@ function showBook(id) {
     const iframe = el("iframe", {
       src,
       title: book.title,
-      allowFullscreen: true
+      allowFullscreen: true,
+      loading: "lazy"
     });
-    iframe.setAttribute("allow", "fullscreen");
+    iframe.setAttribute("allow", "autoplay; fullscreen");
     frame.append(iframe);
   } else {
-    frame.append(el("div", { className: "empty", textContent: "Tautan embed untuk buku ini belum ditambahkan." }));
+    frame.append(el("div", { className: "empty", textContent: "Tautan untuk konten ini belum ditambahkan." }));
   }
 }
 
 function currentId() { return decodeURIComponent(location.hash.slice(1)); }
 
-// Tema
 function applyTheme(t) {
   if (t) document.documentElement.setAttribute("data-theme", t);
   else document.documentElement.removeAttribute("data-theme");
@@ -344,7 +320,6 @@ $("theme-btn").addEventListener("click", () => {
   try { localStorage.setItem("theme", next); } catch (e) {}
 });
 
-// Tombol aksi
 $("fs-btn").addEventListener("click", () => {
   const frame = $("frame");
   if (document.fullscreenElement) document.exitFullscreen();
@@ -361,7 +336,6 @@ $("copy-btn").addEventListener("click", async (e) => {
   setTimeout(() => { btn.textContent = "Salin tautan"; }, 2000);
 });
 
-// Mulai
 $("site-title").textContent = SITE.title;
 $("site-sub").textContent = SITE.subtitle;
 $("footer").textContent = SITE.footer;
